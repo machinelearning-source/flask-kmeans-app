@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Part 1: Manual K-Means Simulation</h2>
+<p class="lead">Step-by-step mathematical tracing of the clustering process (3 Iterations).</p>
+<hr>
+
+<h4>Variance (WCSS) Reduction Analysis</h4>
+<p>The main objective of K-Means iterations is to minimize the Within-Cluster Sum of Squares (WCSS). Below is the evaluation of our 3 manual mathematical cycles:</p>
+
+<table class="table table-bordered table-striped mb-4">
+    <thead class="table-dark">
+        <tr>
+            <th>Iteration</th>
+            <th>Calculated Variance (WCSS)</th>
+            <th>Centroid Locations (X, Y)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for iter in iterations %}
+        <tr>
+            <td><strong>Iteration {{ iter.iteration }}</strong></td>
+            <td class="text-danger"><strong>{{ iter.wcss }}</strong></td>
+            <td>{{ iter.centroids }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="alert alert-success">
+    <h5>Interpretation of Results</h5>
+    <p class="mb-0">As observed in the table, the variance decreases significantly after each iteration. This behavior proves mathematically that the algorithm is converging, meaning the data points are getting closer to their respective cluster centers and the groups are becoming more homogeneous.</p>
+</div>
+{% endblock %}

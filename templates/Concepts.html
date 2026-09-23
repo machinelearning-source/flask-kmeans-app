@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Unsupervised Machine Learning & K-Means</h2>
+<p class="lead">Understanding cluster classification without pre-existing labels.</p>
+<hr>
+<h3>1. Unsupervised Learning</h3>
+<p>Unlike supervised learning, unsupervised learning algorithms work with data that does not have predefined labels or target variables. The system attempts to learn the underlying structure of the data independently.</p>
+
+<h3>2. Clustering</h3>
+<p>Clustering is the task of grouping a set of objects in such a way that objects in the same group (called a cluster) are more similar to each other than to those in other groups.</p>
+
+<h3>3. How K-Means Works</h3>
+<ul>
+    <li><strong>Initialization:</strong> The algorithm randomly selects 'K' number of initial centroids.</li>
+    <li><strong>Assignment:</strong> Each data point is assigned to its nearest centroid using Euclidean distance.</li>
+    <li><strong>Update:</strong> The centroids are recalculated by taking the mathematical mean of all data points assigned to that cluster.</li>
+    <li><strong>Convergence:</strong> This iterative process runs until centroids stop shifting or a maximum iteration threshold is hit.</li>
+</ul>
+{% endblock %}

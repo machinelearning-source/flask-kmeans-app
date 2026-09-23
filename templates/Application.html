@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Clustering Application (Production Level)</h2>
+<p class="lead">Analysis of 1,000+ data records using Scikit-Learn.</p>
+<hr>
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>Model Performance Evaluation</h4>
+        <div class="alert alert-info">
+            <strong>Silhouette Score:</strong> {{ silhouette }}
+            <p class="small mb-0 mt-1">A score close to 1 indicates that the data points are highly dense within their cluster and well-separated from neighboring clusters.</p>
+        </div>
+        
+        <h4>Cluster Distribution & Centroids</h4>
+        <table class="table table-sm table-bordered">
+            <thead>
+                <tr>
+                    <th>Cluster</th>
+                    <th>Record Count</th>
+                    <th>Centroid Coordinates (Income, Score)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c_id, count in summary.items() %}
+                <tr>
+                    <td>Cluster {{ c_id }}</td>
+                    <td>{{ count }}</td>
+                    <td>{{ centroids[c_id]|map('round', 2)|list }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-6 text-center">
+        <h4>Visual Representation</h4>
+        <img src="{{ url_for('static', filename='img/production_chart.png') }}" class="img-fluid rounded border shadow-sm" alt="K-Means Clusters Grid">
+    </div>
+</div>
+
+<h4 class="mt-4">Data Assignment Sample (First 15 Records)</h4>
+<table class="table table-striped table-hover table-sm">
+    <thead>
+        <tr>
+            <th>Annual Income (k$)</th>
+            <th>Spending Score (1-100)</th>
+            <th>Assigned Cluster</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in sample %}
+        <tr>
+            <td>{{ row.Annual_Income|round(2) }}</td>
+            <td>{{ row.Spending_Score|round(2) }}</td>
+            <td><span class="badge bg-secondary">Cluster {{ row.Cluster }}</span></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

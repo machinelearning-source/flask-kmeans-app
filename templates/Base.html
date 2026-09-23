@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Means Unsupervised Learning</title>
+    <!-- Bootstrap CSS v5.3 desde CDN confiable -->
+    <link href="https://jsdelivr.net" rel="stylesheet" crossorigin="anonymous">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .nav-link { font-weight: 500; }
+    </style>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" href="#">📊 K-Means Dashboard</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link mx-2" href="{{ url_for('concepts') }}">Concepts</a>
+                <a class="nav-link mx-2" href="{{ url_for('manual_exercise') }}">Manual Exercise</a>
+                <a class="nav-link mx-2" href="{{ url_for('clustering_application') }}">Clustering Application</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container bg-white p-5 shadow-sm rounded-4 border mb-5">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
+
