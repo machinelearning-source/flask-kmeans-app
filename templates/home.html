@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Home | Flight Analytics{% endblock %}
+{% block content %}
+<div class="hero text-center">
+    <div class="container">
+        <h1 class="display-5 fw-bold">Flight Operations Analytics</h1>
+        <p class="lead mb-1">Machine Learning applied to airline operations: K-Means clustering and binary delay prediction.</p>
+        <p class="mono mb-0">Unsupervised Learning + Supervised Binary Classification</p>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h4 class="text-primary">Part 1 - Manual Exercise</h4>
+                    <p class="text-muted mb-3">A step-by-step mathematical simulation of 3 K-Means iterations over 100 flights, including Euclidean distances, cluster assignments, updated centroids, and variance (WCSS) analysis.</p>
+                    <a href="{{ url_for('manual_exercise') }}" class="btn btn-outline-primary">View manual exercise</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h4 class="text-primary">Part 2 - Clustering Application</h4>
+                    <p class="text-muted mb-3">K-Means implemented with Scikit-Learn over 1,000 flights. Cluster visualization, centroid coordinates, and silhouette score evaluation.</p>
+                    <a href="{{ url_for('clustering_application') }}" class="btn btn-outline-primary">View application</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h4 class="text-primary">Binary Classification</h4>
+                    <p class="text-muted mb-3">Supervised models (Logistic Regression and Decision Tree) that predict whether a flight will be delayed, with performance metrics and confusion matrices.</p>
+                    <a href="{{ url_for('classification') }}" class="btn btn-outline-primary">View classification</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h4 class="text-primary">Concepts</h4>
+                    <p class="text-muted mb-3">Theoretical foundations of unsupervised learning, clustering, how K-Means works, and the role of centroids and iterations.</p>
+                    <a href="{{ url_for('concepts') }}" class="btn btn-outline-primary">Read concepts</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

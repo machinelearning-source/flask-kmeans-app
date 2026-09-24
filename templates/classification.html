@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Binary Classification | Flight Analytics{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Binary Target Variable: Flight Delay Prediction</h2>
+    <p class="lead text-muted">Supervised learning over the same flight dataset. The target variable <code>delayed</code> is binary: 1 = delayed (&gt; 15 min), 0 = on time.</p>
+    <hr>
+
+    <section>
+        <h4>Target variable definition</h4>
+        <p>The binary target captures the outcome <strong>delay (1)</strong> vs <strong>no delay (0)</strong>, built from a real-valued delay time. This transforms the problem into a classification task.</p>
+        <ul>
+            <li><strong>Features:</strong> distance_km, duration_min.</li>
+            <li><strong>Target:</strong> delayed (binary: 0 / 1).</li>
+            <li><strong>Train / test split:</strong> {{ n_train }} / {{ n_test }} records (75 / 25 %), stratified.</li>
+            <li><strong>Positive rate (delayed flights):</strong> {{ '%.1f'|format(pos_rate * 100) }}%.</li>
+        </ul>
+        <p><strong>Preprocessing:</strong> features were standardized (StandardScaler) for Logistic Regression; the Decision Tree uses the raw values since it is scale-independent.</p>
+    </section>
+
+    <section>
+        <h4>Model comparison (test set)</h4>
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Model</th>
+                    <th>Accuracy</th>
+                    <th>Precision</th>
+                    <th>Recall</th>
+                    <th>F1</th>
+                    <th>Interpretation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>{{ logistic.name }}</strong></td>
+                    <td>{{ logistic.accuracy }}</td>
+                    <td>{{ logistic.precision }}</td>
+                    <td>{{ logistic.recall }}</td>
+                    <td>{{ logistic.f1 }}</td>
+                    <td class="small">
+                        Coefficients: distance = {{ logistic.coefs[0] }}, duration = {{ logistic.coefs[1] }}, intercept = {{ logistic.intercept }}.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>{{ tree.name }}</strong> (depth {{ tree.depth }})</td>
+                    <td>{{ tree.accuracy }}</td>
+                    <td>{{ tree.precision }}</td>
+                    <td>{{ tree.recall }}</td>
+                    <td>{{ tree.f1 }}</td>
+                    <td class="small">
+                        Feature importance: distance = {{ tree.importances[0] }}, duration = {{ tree.importances[1] }}.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h4>Confusion matrices</h4>
+        <img src="data:image/png;base64,{{ confusion_plot }}" class="img-fluid rounded border shadow-sm" alt="Confusion matrices">
+        <p class="small text-muted mt-1">Rows = actual class, columns = predicted class. The diagonal (TN and TP) are correct predictions.</p>
+    </section>
+
+    <section>
+        <h4>Interpretation</h4>
+        <div class="alert alert-info">
+            <p class="mb-0">
+                Logistic Regression provides a punctual, interpretable linear boundary: the positive coefficients indicate that longer distance and duration slightly increase the expected probability of delay. The Decision Tree achieves comparable accuracy but is easier to explain for non-technical stakeholders. Recall captures how well the models detect delayed flights, which is the most relevant metric for airline operations.
+            </p>
+        </div>
+    </section>
+</div>
+{% endblock %}

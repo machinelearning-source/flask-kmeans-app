@@ -1,33 +1,118 @@
 {% extends 'base.html' %}
+{% block title %}Manual Exercise | Flight Analytics{% endblock %}
 {% block content %}
-<h2>Part 1: Manual K-Means Simulation</h2>
-<p class="lead">Step-by-step mathematical tracing of the clustering process (3 Iterations).</p>
-<hr>
+<div class="container mt-4">
+    <h2>Part 1: Manual K-Means Simulation</h2>
+    <p class="lead text-muted">Step-by-step mathematical tracing of the clustering process over 3 iterations.</p>
+    <hr>
 
-<h4>Variance (WCSS) Reduction Analysis</h4>
-<p>The main objective of K-Means iterations is to minimize the Within-Cluster Sum of Squares (WCSS). Below is the evaluation of our 3 manual mathematical cycles:</p>
+    <section>
+        <h4>Dataset Context</h4>
+        <p>We analyze a sample of <strong>{{ n_rows }} flight records</strong> with two numerical variables:</p>
+        <ul>
+            <li><strong>Distance (km):</strong> the geographic distance traveled by the flight.</li>
+            <li><strong>Duration (min):</strong> the total time of the flight in minutes.</li>
+        </ul>
+        <p>The objective is to identify natural groups of flights (e.g., short-haul, medium-haul, and long-haul) using K-Means with three clusters.</p>
+    </section>
 
-<table class="table table-bordered table-striped mb-4">
-    <thead class="table-dark">
-        <tr>
-            <th>Iteration</th>
-            <th>Calculated Variance (WCSS)</th>
-            <th>Centroid Locations (X, Y)</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for iter in iterations %}
-        <tr>
-            <td><strong>Iteration {{ iter.iteration }}</strong></td>
-            <td class="text-danger"><strong>{{ iter.wcss }}</strong></td>
-            <td>{{ iter.centroids }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <section>
+        <h4>Initial Centroids</h4>
+        <p>The three centroids are selected to cover the data range:</p>
+        <table class="table table-bordered table-sm w-auto">
+            <thead class="table-dark">
+                <tr><th>Centroid</th><th>Distance (km)</th><th>Duration (min)</th></tr>
+            </thead>
+            <tbody>
+                {% for c in initial_centroids %}
+                <tr><td>C{{ loop.index }}</td><td>{{ c[0] }}</td><td>{{ c[1] }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <img src="data:image/png;base64,{{ initial_plot }}" class="img-fluid rounded border shadow-sm mb-3" alt="Initial centroids">
+    </section>
 
-<div class="alert alert-success">
-    <h5>Interpretation of Results</h5>
-    <p class="mb-0">As observed in the table, the variance decreases significantly after each iteration. This behavior proves mathematically that the algorithm is converging, meaning the data points are getting closer to their respective cluster centers and the groups are becoming more homogeneous.</p>
+    <section>
+        <h4>Distance Table (Iteration 1 — first {{ distance_rows|length }} records)</h4>
+        <p>Euclidean distances computed from the initial centroids and the assigned cluster:</p>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-sm">
+                <thead class="table-dark">
+                    <tr><th>Flight</th><th>Distance (km)</th><th>Duration (min)</th><th>d1</th><th>d2</th><th>d3</th><th>Assigned cluster</th></tr>
+                </thead>
+                <tbody>
+                    {% for row in distance_rows %}
+                    <tr>
+                        <td>{{ row.flight_id }}</td>
+                        <td>{{ '%.1f'|format(row.distance_km) }}</td>
+                        <td>{{ '%.1f'|format(row.duration_min) }}</td>
+                        <td>{{ '%.2f'|format(row.d_1) }}</td>
+                        <td>{{ '%.2f'|format(row.d_2) }}</td>
+                        <td>{{ '%.2f'|format(row.d_3) }}</td>
+                        <td><span class="badge bg-secondary">Cluster {{ row.assigned_cluster }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section>
+        <h4>Iterations: Assignments, Centroids and Variance</h4>
+        <p>Each iteration assigns every record to the nearest centroid, then recomputes centroids as the average of the records of each cluster.</p>
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Iteration</th>
+                    <th>Cluster sizes</th>
+                    <th>Centroids before (dist, dur)</th>
+                    <th>Centroids after (dist, dur)</th>
+                    <th>WCSS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for it in iterations %}
+                <tr>
+                    <td><strong>Iteration {{ it.iteration }}</strong></td>
+                    <td>
+                        C1: {{ it.counts[0] }} | C2: {{ it.counts[1] }} | C3: {{ it.counts[2] }}
+                    </td>
+                    <td class="mono">
+                        {% for c in it.centroids_before %}({{ '%.2f'|format(c[0]) }}, {{ '%.2f'|format(c[1]) }}){% if not loop.last %}; {% endif %}{% endfor %}
+                    </td>
+                    <td class="mono text-success">
+                        {% for c in it.centroids_after %}({{ '%.2f'|format(c[0]) }}, {{ '%.2f'|format(c[1]) }}){% if not loop.last %}; {% endif %}{% endfor %}
+                    </td>
+                    <td class="text-danger"><strong>{{ it.wcss }}</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h5>Cluster plots per iteration</h5>
+        <div class="row g-3 mb-3">
+            {% for it in iterations %}
+            <div class="col-md-4">
+                <img src="data:image/png;base64,{{ it.plot }}" class="img-fluid rounded border shadow-sm" alt="Iteration {{ it.iteration }}">
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section>
+        <h4>Variance (WCSS) Comparison</h4>
+        <p>The Within-Cluster Sum of Squares decreases in every iteration, proving that the algorithm is converging: the records are getting closer to their cluster centers and the groups are becoming more homogeneous.</p>
+        <img src="data:image/png;base64,{{ wcss_plot }}" class="img-fluid rounded border shadow-sm" style="max-width:560px;" alt="WCSS comparison">
+    </section>
+
+    <section>
+        <div class="alert alert-success">
+            <h5>Final Interpretation</h5>
+            <p class="mb-0">
+                After 3 iterations the centroids stabilize. Cluster 1 groups <strong>short-haul flights</strong> (about 392 km, ~50 min), Cluster 2 groups <strong>medium-haul flights</strong> (about 1,499 km, ~141 min), and Cluster 3 groups <strong>long-haul flights</strong> (about 2,613 km, ~236 min). Final centroids are approximately:
+                {% for c in final_centroids %}({{ '%.2f'|format(c[0]) }}, {{ '%.2f'|format(c[1]) }}){% if not loop.last %}, {% endif %}{% endfor %}.
+            </p>
+        </div>
+    </section>
 </div>
 {% endblock %}

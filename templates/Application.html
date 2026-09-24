@@ -1,60 +1,95 @@
 {% extends 'base.html' %}
+{% block title %}Clustering Application | Flight Analytics{% endblock %}
 {% block content %}
-<h2>Clustering Application (Production Level)</h2>
-<p class="lead">Analysis of 1,000+ data records using Scikit-Learn.</p>
-<hr>
+<div class="container mt-4">
+    <h2>Part 2: Clustering Application (Scikit-Learn)</h2>
+    <p class="lead text-muted">K-Means applied to 1,000 flight records with the distance and duration variables.</p>
+    <hr>
 
-<div class="row">
-    <div class="col-md-6">
-        <h4>Model Performance Evaluation</h4>
-        <div class="alert alert-info">
-            <strong>Silhouette Score:</strong> {{ silhouette }}
-            <p class="small mb-0 mt-1">A score close to 1 indicates that the data points are highly dense within their cluster and well-separated from neighboring clusters.</p>
+    <section>
+        <h4>Dataset justification and preprocessing</h4>
+        <p>We selected <strong>1,000 flights</strong> with two fully numerical variables:</p>
+        <ul>
+            <li><strong>distance_km</strong> (range {{ feature_ranges.distance[0] }} – {{ feature_ranges.distance[1] }})</li>
+            <li><strong>duration_min</strong> (range {{ feature_ranges.duration[0] }} – {{ feature_ranges.duration[1] }})</li>
+        </ul>
+        <p><strong>Why these variables?</strong> Both capture the "size" of a flight directly, they are numeric (no categorical encoding needed), and they correlate strongly with operational costs and crew scheduling. Preprocessing: missing values were removed and the variables were <strong>standardized</strong> (mean 0, standard deviation 1) so that the Euclidean distance is not dominated by the larger-magnitude variable.</p>
+    </section>
+
+    <section>
+        <div class="row g-4">
+            <div class="col-md-5">
+                <h4>Model configuration</h4>
+                <table class="table table-sm table-bordered">
+                    <tbody>
+                        <tr><th>Algorithm</th><td>K-Means (Scikit-Learn)</td></tr>
+                        <tr><th>n_clusters (K)</th><td>3</td></tr>
+                        <tr><th>Initialization</th><td>k-means++</td></tr>
+                        <tr><th>n_init</th><td>10</td></tr>
+                        <tr><th>Random state</th><td>42</td></tr>
+                        <tr><th>Silhouette score</th><td class="text-primary"><strong>{{ silhouette }}</strong></td></tr>
+                    </tbody>
+                </table>
+                <h4>Cluster summary and centroids</h4>
+                <table class="table table-sm table-bordered">
+                    <thead class="table-dark">
+                        <tr><th>Cluster</th><th>Records</th><th>Centroid (distance, duration)</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for c_id in [0, 1, 2] %}
+                        <tr>
+                            <td>Cluster {{ c_id }}</td>
+                            <td>{{ summary_count.get(c_id, 0) }}</td>
+                            <td class="mono">({{ '%.1f'|format(centroids_raw[c_id][0]) }}, {{ '%.1f'|format(centroids_raw[c_id][1]) }})</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-7">
+                <h4>Cluster visualization</h4>
+                <img src="data:image/png;base64,{{ plot }}" class="img-fluid rounded border shadow-sm" alt="K-Means clusters">
+            </div>
         </div>
-        
-        <h4>Cluster Distribution & Centroids</h4>
-        <table class="table table-sm table-bordered">
-            <thead>
-                <tr>
-                    <th>Cluster</th>
-                    <th>Record Count</th>
-                    <th>Centroid Coordinates (Income, Score)</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for c_id, count in summary.items() %}
-                <tr>
-                    <td>Cluster {{ c_id }}</td>
-                    <td>{{ count }}</td>
-                    <td>{{ centroids[c_id]|map('round', 2)|list }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <div class="col-md-6 text-center">
-        <h4>Visual Representation</h4>
-        <img src="{{ url_for('static', filename='img/production_chart.png') }}" class="img-fluid rounded border shadow-sm" alt="K-Means Clusters Grid">
-    </div>
-</div>
+    </section>
 
-<h4 class="mt-4">Data Assignment Sample (First 15 Records)</h4>
-<table class="table table-striped table-hover table-sm">
-    <thead>
-        <tr>
-            <th>Annual Income (k$)</th>
-            <th>Spending Score (1-100)</th>
-            <th>Assigned Cluster</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for row in sample %}
-        <tr>
-            <td>{{ row.Annual_Income|round(2) }}</td>
-            <td>{{ row.Spending_Score|round(2) }}</td>
-            <td><span class="badge bg-secondary">Cluster {{ row.Cluster }}</span></td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <section>
+        <h4>Silhouette Score Interpretation</h4>
+        <div class="alert alert-info">
+            <p class="mb-0">
+                The silhouette score is <strong>{{ silhouette }}</strong>. This value is above 0 and close to acceptable levels, which indicates that the records are reasonably compact inside their own cluster and reasonably separated from the other clusters. A score near 1 would mean perfectly separated clusters; near 0 would mean overlapping clusters.
+            </p>
+        </div>
+    </section>
+
+    <section>
+        <h4>Assigned clusters (first 15 records)</h4>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-sm">
+                <thead class="table-dark">
+                    <tr><th>Flight</th><th>Distance (km)</th><th>Duration (min)</th><th>Cluster</th></tr>
+                </thead>
+                <tbody>
+                    {% for row in sample %}
+                    <tr>
+                        <td>{{ row.flight_id }}</td>
+                        <td>{{ '%.1f'|format(row.distance_km) }}</td>
+                        <td>{{ '%.1f'|format(row.duration_min) }}</td>
+                        <td><span class="badge bg-secondary">Cluster {{ row.Cluster }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section>
+        <h4>Interpretation of the clusters</h4>
+        <div class="alert alert-success">
+            <p class="mb-0">
+                <strong>Cluster 0</strong> corresponds to short-range regional flights, operated on local routes. <strong>Cluster 1</strong> groups mid-range flights used in national/domestic networks. <strong>Cluster 2</strong> contains long-range flights typical of international operations, with the highest fuel consumption and longest crew duty times. These segments are useful for fleet assignment, fuel planning, and ticket pricing.
+            </p>
+        </div>
+    </section>
+</div>
 {% endblock %}
